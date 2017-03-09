@@ -1,0 +1,35 @@
+{
+  "name": "opencart-mod",
+  "version": "0.0.1",
+  "description": "Refresh opencart modifications in develop mode",
+  "main": "index.js",
+  "dependencies": {
+    "fs-readdir-recursive": "^1.0.0",
+    "get-query-param": "^2.0.0",
+    "node-watch": "^0.4.1",
+    "request": "^2.80.0",
+    "fs": "^0.0.1-security"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IvanNezhura/oc-mod.git"
+  },
+  "keywords": [
+    "opencart",
+    "modifications"
+  ],
+  "author": "ivan.nezhura@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/IvanNezhura/oc-mod/issues"
+  },
+  "preferGlobal": true,
+  "bin": {
+    "oc-mod": "./index.js"
+  },
+  "homepage": "https://github.com/IvanNezhura/oc-mod#readme"
+}
