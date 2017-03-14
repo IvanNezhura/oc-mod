@@ -1,5 +1,5 @@
 # oc-mod
-Refresh opencart modifications while you code
+Refresh opencart modifications (holded in opencart-project/system/storage/modification/) while you code
  
 # How to use
  
