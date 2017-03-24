@@ -1,7 +1,7 @@
 # oc-mod
 Refresh opencart modifications (holded in opencart-project/system/storage/modification/) while you code
  
-# How to use
+### How to use
  
  
 ```sh
