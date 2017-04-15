@@ -1,16 +1,61 @@
 #!/usr/bin/env node
 
+var tFunk = require("tfunk");
+var readlineSync = require('readline-sync');
 var read = require('fs-readdir-recursive');
 var fs = require('fs');
 var request = require('request');
-const getQueryParam = require('get-query-param');
-const readline = require('readline');
+var getQueryParam = require('get-query-param');
+
 
 var projectDir = './';
 var modDir = 'system/storage/modification/';
 
-// helper
-var log = console.log.bind(console);
+
+// check for exist modifications
+var filesToWatch = getFilesToWatch(projectDir, modDir);
+if (filesToWatch.length === 0)
+    exitWithError('No modifications found in ' + projectDir + modDir);
+
+//get+check OC info
+var info = getAdminInfo();
+connectToAdminPanel(info.host, info.username, info.password, false);
+
+// start watching
+filesToWatch.forEach(function(item, i, arr){
+    fs.watchFile(item, { persistent: true, interval: 10 }, (prev, curr) => {
+        connectToAdminPanel(info.host, info.username, info.password, true);
+    });
+});
+
+console.log(tFunk('{green:start watching: '+ filesToWatch.length + ' files}'));
+
+
+// lib
+
+function getAdminInfo(){
+    var host = readlineSync.question(tFunk("Please, enter your local opencart application full host ({green:http://my-oc-shop.dev}) : "));
+    var username = readlineSync.question(tFunk("Please, enter username for access to admin-panel ({green:username}) : "));
+    var password = readlineSync.question(tFunk("Please, enter password for access to admin-panel ({green:password}): "));
+
+    return {
+        host : host,
+        username : username,
+        password : password
+    };
+
+}
+
+function getFilesToWatch(dir, modDir){
+    var filesToWatch = [];
+
+    read(dir + modDir).forEach(function(item){
+        filesToWatch.push(projectDir + item);
+    });
+
+    return filesToWatch;
+}
+
 
 function connectToAdminPanel (host, username, password, refreshModifications) {
     request.post(
@@ -22,16 +67,15 @@ function connectToAdminPanel (host, username, password, refreshModifications) {
             }
         },
         function(err,response){
-            if  (err) {
-                log('--------------------> Can not connect to ' + host + '<---------------------');
-                throw err;
-            }
+            if  (err)
+                exitWithError('Can not connect to ' + host);
+
             if (response.headers.location) {
                 var token = getQueryParam('token', response.headers.location);
                 var cookie = response.headers['set-cookie'];
                 var refreshModUrl = host + '/admin/index.php?route=extension/modification/refresh&token=' + token;
             } else {
-                throw Error('--------------------> Can not connect to admin panel on ' + host + '<---------------------');
+                exitWithError('Can not connect to admin panel on ' + host);
             }
 
             if (refreshModifications) {
@@ -43,38 +87,7 @@ function connectToAdminPanel (host, username, password, refreshModifications) {
     );
 }
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-
-rl.question('\nPlease, enter your local opencart application host, username and password for access to admin-panel, separated by spaces\n ' +
-    '(like "http://my-oc-shop.dev my-user my-password"): ', (answer) => {
-    var words = answer.split(' ');
-    if (words.length != 3)
-        throw Error('Your input is wrong!');
-
-    var host = words[0].trim();
-    var username = words[1].trim();
-    var password = words[2].trim();
-
-    var filesToWatch = [];
-    read(projectDir + modDir).forEach(function(item, i, arr){
-        fs.watchFile(projectDir + '/' + item, { persistent: true, interval: 10 }, (curr, prev) => {
-            connectToAdminPanel(host, username, password, true);
-    });
-
-        filesToWatch.push(projectDir + '/' + item);
-    });
-
-    // check connect to admin panel
-    connectToAdminPanel(host, username, password, false);
-
-    // check files
-    if (filesToWatch.length === 0)
-        throw Error('No modifications found in ' + projectDir + modDir);
-    else
-        log('start watching: ' + filesToWatch.length + ' files\n');
-
-});
+function exitWithError(msg){
+    console.log(tFunk("{red:" + msg +  '}\n'));
+    process.exit();
+}
