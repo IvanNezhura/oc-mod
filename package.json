@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IvanNezhura/oc-mod.git"
+    "url": "git+https://github.com/ivan-nezhura/oc-mod.git"
   },
   "keywords": [
     "opencart",
@@ -25,11 +25,11 @@
   "author": "ivan.nezhura@gmail.com",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/IvanNezhura/oc-mod/issues"
+    "url": "https://github.com/ivan-nezhura/oc-mod/issues"
   },
   "preferGlobal": true,
   "bin": {
     "oc-mod": "./index.js"
   },
-  "homepage": "https://github.com/IvanNezhura/oc-mod#readme"
+  "homepage": "https://github.com/ivan-nezhura/oc-mod#readme"
 }
