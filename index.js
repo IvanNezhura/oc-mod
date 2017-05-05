@@ -1,24 +1,24 @@
 #!/usr/bin/env node
+"use strict";
 
-var tFunk = require("tfunk");
-var readlineSync = require('readline-sync');
-var read = require('fs-readdir-recursive');
-var fs = require('fs');
-var request = require('request');
-var getQueryParam = require('get-query-param');
+const tFunk = require("tfunk");
+const readlineSync = require('readline-sync');
+const read = require('fs-readdir-recursive');
+const fs = require('fs');
+const request = require('request');
+const getQueryParam = require('get-query-param');
 
 
-var projectDir = './';
-var modDir = 'system/storage/modification/';
-
+const projectDir = './';
+const modDir = 'system/storage/modification/';
 
 // check for exist modifications
-var filesToWatch = getFilesToWatch(projectDir, modDir);
+const filesToWatch = getFilesToWatch(projectDir, modDir);
 if (filesToWatch.length === 0)
     exitWithError('No modifications found in ' + projectDir + modDir);
 
 //get+check OC info
-var info = getAdminInfo();
+const info = getAdminInfo();
 connectToAdminPanel(info.host, info.username, info.password, false);
 
 // start watching
@@ -32,22 +32,16 @@ console.log(tFunk('{green:start watching: '+ filesToWatch.length + ' files}'));
 
 
 // lib
-
 function getAdminInfo(){
-    var host = readlineSync.question(tFunk("Please, enter your local opencart application full host ({green:http://my-oc-shop.dev}) : "));
-    var username = readlineSync.question(tFunk("Please, enter username for access to admin-panel ({green:username}) : "));
-    var password = readlineSync.question(tFunk("Please, enter password for access to admin-panel ({green:password}): "));
+    const host = readlineSync.question(tFunk("Please, enter your local opencart application full host ({green:http://my-oc-shop.dev}) : "));
+    const username = readlineSync.question(tFunk("Please, enter username for access to admin-panel ({green:username}) : "));
+    const password = readlineSync.question(tFunk("Please, enter password for access to admin-panel ({green:password}): "));
 
-    return {
-        host : host,
-        username : username,
-        password : password
-    };
-
+    return {host, username, password};
 }
 
 function getFilesToWatch(dir, modDir){
-    var filesToWatch = [];
+    let filesToWatch = [];
 
     read(dir + modDir).forEach(function(item){
         filesToWatch.push(projectDir + item);
@@ -67,16 +61,12 @@ function connectToAdminPanel (host, username, password, refreshModifications) {
             }
         },
         function(err,response){
-            if  (err)
-                exitWithError('Can not connect to ' + host);
+            if  (err || !response.headers.location)
+                exitWithError(`Can not connect to ${host} or Can not connect to admin panel`);
 
-            if (response.headers.location) {
-                var token = getQueryParam('token', response.headers.location);
-                var cookie = response.headers['set-cookie'];
-                var refreshModUrl = host + '/admin/index.php?route=extension/modification/refresh&token=' + token;
-            } else {
-                exitWithError('Can not connect to admin panel on ' + host);
-            }
+            const token = getQueryParam('token', response.headers.location);
+            const cookie = response.headers['set-cookie'];
+            const refreshModUrl = `${host}/admin/index.php?route=extension/modification/refresh&token=${token}`;
 
             if (refreshModifications) {
                 request.get(refreshModUrl, {
