@@ -1,6 +1,6 @@
 {
   "name": "oc-mod",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Refresh opencart modifications in develop mode",
   "main": "index.js",
   "devDependencies": {},
