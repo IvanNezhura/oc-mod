@@ -30,6 +30,7 @@
     "get-query-param": "^2.0.0",
     "node-watch": "^0.5.2",
     "readline-sync": "^1.4.7",
+    "request": "^2.81.0",
     "tfunk": "^3.1.0"
   }
 }
