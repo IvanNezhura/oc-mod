@@ -8,18 +8,18 @@ const fs = require('fs');
 const request = require('request');
 const getQueryParam = require('get-query-param');
 
-
 const projectDir = './';
-const modDir = 'system/storage/modification/';
-
-// check for exist modifications
-const filesToWatch = getFilesToWatch(projectDir, modDir);
-if (filesToWatch.length === 0)
-    exitWithError('No modifications found in ' + projectDir + modDir);
 
 //get+check OC info
 const info = getAdminInfo();
 connectToAdminPanel(info.host, info.username, info.password, false);
+
+// check for exist modifications
+const filesToWatch = getFilesToWatch(projectDir, info.modDir);
+if (filesToWatch.length === 0)
+    exitWithError('No modifications found in ' + projectDir + info.modDir);
+
+
 
 // start watching
 filesToWatch.forEach(function(item, i, arr){
@@ -33,11 +33,14 @@ console.log(tFunk('{green:start watching: '+ filesToWatch.length + ' files}'));
 
 // lib
 function getAdminInfo(){
-    const host = readlineSync.question(tFunk("Please, enter your local opencart application full host ({green:http://my-oc-shop.dev}) : "));
-    const username = readlineSync.question(tFunk("Please, enter username for access to admin-panel ({green:username}) : "));
-    const password = readlineSync.question(tFunk("Please, enter password for access to admin-panel ({green:password}): "));
+    const defaultModPAth = 'system/storage/modification/';
+    const modDir = readlineSync.question(tFunk(`Path to modifications ({green: default to ${defaultModPAth}}) : `))
+        || defaultModPAth;
+    const host = readlineSync.question(tFunk("Local opencart applications full host ({green:http://my-oc-shop.dev}) : "));
+    const username = readlineSync.question(tFunk("Username for access to admin-panel ({green:username}) : "));
+    const password = readlineSync.question(tFunk("Password for access to admin-panel ({green:password}): "));
 
-    return {host, username, password};
+    return {modDir, host, username, password};
 }
 
 function getFilesToWatch(dir, modDir){
@@ -69,6 +72,8 @@ function connectToAdminPanel (host, username, password, refreshModifications) {
             const refreshModUrl = `${host}/admin/index.php?route=extension/modification/refresh&token=${token}`;
 
             if (refreshModifications) {
+                const date = new Date();
+                console.log(`${date.getHours()}:${date.getMinutes()} : modification updated...`);
                 request.get(refreshModUrl, {
                     headers: {'Cookie': cookie }
                 });
